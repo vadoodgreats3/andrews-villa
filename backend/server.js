@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 // ========== MIDDLEWARE ==========
 app.use(cors({
-    origin: ['http://localhost:8080', 'https://andrews-villa.onrender.com'],
+    origin: ['https://andrews-villa.onrender.com'],
     credentials: true
 }));
 app.use(express.json());

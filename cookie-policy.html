@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Policy | Andrews Villa</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/glassmorphism.css">
+    <link rel="stylesheet" href="css/dark-mode.css" disabled>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .legal-container {
+            max-width: 900px;
+            margin: 100px auto 50px;
+            padding: 0 2rem;
+        }
+        
+        .legal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            margin-bottom: 2rem;
+        }
+        
+        .legal-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .legal-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .cookie-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        
+        .cookie-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        .cookie-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .cookie-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .badge-essential {
+            background: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+        
+        .badge-analytics {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .badge-functional {
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+        }
+        
+        .cookie-controls {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .cookie-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border-color);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background: var(--primary-color);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        .back-home {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar glass-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-home"></i>
+                <span>Andrews Villa</span>
+            </a>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cookie Policy Content -->
+    <main class="legal-container">
+        <div class="legal-content glass-card">
+            <div class="legal-header">
+                <h1>Cookie Policy</h1>
+                <p>Last Updated: January 2024</p>
+                <p class="text-secondary">How we use cookies and similar technologies</p>
+            </div>
+            
+            <div class="legal-section">
+                <h2><i class="fas fa-cookie-bite"></i> What Are Cookies?</h2>
+                <p>Cookies are small text files that are placed on your computer or mobile device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our site.</p>
+            </div>
+            
+            <div class="legal-section">
+                <h2><i class="fas fa-th-list"></i> Types of Cookies We Use</h2>
+                
+                <table class="cookie-table">
+                    <thead>
+                        <tr>
+                            <th>Cookie Type</th>
+                            <th>Purpose</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="cookie-badge badge-essential">Essential</span>
+                                Session Cookies
+                            </td>
+                            <td>Keep you logged in during your visit, maintain shopping cart items, enable secure payments</td>
+                            <td>Session</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="cookie-badge badge-essential">Essential</span>
+                                Authentication Cookies
+                            </td>
+                            <td>Remember your login status and preferences for property searches</td>
+                            <td>30 days</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="cookie-badge badge-analytics">Analytics</span>
+                                Google Analytics
+                            </td>
+                            <td>Understand how users interact with our site to improve user experience</td>
+                            <td>2 years</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="cookie-badge badge-functional">Functional</span>
+                                Preference Cookies
+                            </td>
+                            <td>Remember your language, currency (including crypto preferences), and display settings</td>
+                            <td>1 year</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="cookie-badge badge-functional">Functional</span>
+                                Payment Cookies
+                            </td>
+                            <td>Remember your preferred payment method (Cash App, crypto, Chime) for faster checkout</td>
+                            <td>90 days</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="legal-section">
+                <h2><i class="fas fa-wallet"></i> Payment & Crypto Transaction Cookies</h2>
+                <p>When processing payments, including cryptocurrency transactions, we use specialized cookies to:</p>
+                <ul class="legal-list">
+                    <li>Securely store your payment method preferences</li>
+                    <li>Remember your crypto wallet addresses (encrypted and hashed)</li>
+                    <li>Maintain transaction security during crypto payment processing</li>
+                    <li>Prevent fraud in cryptocurrency transactions</li>
+                    <li>Remember your preferred currency display (USD, BTC, ETH, etc.)</li>
+                </ul>
+                
+                <div class="highlight-box">
+                    <h3><i class="fas fa-shield-alt"></i> Security Note</h3>
+                    <p>We never store sensitive information like private keys, seed phrases, or full payment details in cookies. All sensitive crypto transaction data is encrypted and stored securely on our servers.</p>
+                </div>
+            </div>
+            
+            <div class="legal-section">
+                <h2><i class="fas fa-sliders-h"></i> Cookie Controls</h2>
+                <p>You can control which cookies we use. Essential cookies cannot be disabled as they are necessary for basic website functionality.</p>
+                
+                <div class="cookie-controls">
+                    <div class="cookie-toggle">
+                        <div>
+                            <h4>Essential Cookies</h4>
+                            <p class="text-secondary">Required for website functionality</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" checked disabled>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cookie-toggle">
+                        <div>
+                            <h4>Analytics Cookies</h4>
+                            <p class="text-secondary">Help us improve our website</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="analyticsToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cookie-toggle">
+                        <div>
+                            <h4>Functional Cookies</h4>
+                            <p class="text-secondary">Remember your preferences</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="functionalToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="cookie-toggle">
+                        <div>
+                            <h4>Payment & Crypto Cookies</h4>
+                            <p class="text-secondary">Remember payment methods and crypto preferences</p>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="paymentToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="saveCookiePreferences()">
+                    <i class="fas fa-save"></i> Save Cookie Preferences
+                </button>
+            </div>
+            
+            <div class="legal-section">
+                <h2><i class="fas fa-globe"></i> Third-Party Cookies</h2>
+                <p>We use trusted third-party services that may set their own cookies:</p>
+                <ul class="legal-list">
+                    <li><strong>Cloudinary:</strong> For property image optimization and delivery</li>
+                    <li><strong>Payment Processors:</strong> For secure payment handling (including crypto gateways)</li>
+                    <li><strong>Analytics Services:</strong> To understand user behavior and improve our platform</li>
+                    <li><strong>Chat Services:</strong> For real-time communication between users and admins</li>
+                </ul>
+            </div>
+            
+            <div class="legal-section">
+                <h2><i class="fas fa-eraser"></i> Managing Cookies</h2>
+                <p>You can manage cookies through your browser settings:</p>
+                <ul class="legal-list">
+                    <li><strong>Chrome:</strong> Settings → Privacy and security → Cookies and other site data</li>
+                    <li><strong>Firefox:</strong> Options → Privacy & Security → Cookies and Site Data</li>
+                    <li><strong>Safari:</strong> Preferences → Privacy → Cookies and website data</li>
+                    <li><strong>Edge:</strong> Settings → Cookies and site permissions → Cookies and data stored</li>
+                </ul>
+                
+                <p><strong>Note:</strong> Disabling cookies may affect your ability to use certain features of Andrews Villa, including property bookings, saved properties, and payment processing.</p>
+            </div>
+            
+            <div class="legal-section">
+                <h2><i class="fas fa-question-circle"></i> Contact & Questions</h2>
+                <p>If you have questions about our Cookie Policy, please contact us:</p>
+                <p><strong>Data Protection Officer</strong><br>
+                Email: privacy@andrewsvilla.com<br>
+                Subject: Cookie Policy Inquiry</p>
+            </div>
+            
+            <div class="back-home">
+                <a href="index.html" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Return to Homepage
+                </a>
+                <a href="privacy-policy.html" class="btn btn-outline" style="margin-left: 1rem;">
+                    <i class="fas fa-shield-alt"></i> View Privacy Policy
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Andrews Villa</h3>
+                <p>Premium real estate platform for buying, renting, and booking properties worldwide.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <a href="privacy-policy.html">Privacy Policy</a>
+                <a href="terms-of-service.html">Terms of Service</a>
+                <a href="cookie-policy.html">Cookie Policy</a>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p id="companyEmail">contact@andrewsvilla.com</p>
+                <p id="companyPhone">+1 (555) 123-4567</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 Andrews Villa. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/dark-mode.js"></script>
+    <script>
+        // Cookie preference management
+        function saveCookiePreferences() {
+            const preferences = {
+                analytics: document.getElementById('analyticsToggle').checked,
+                functional: document.getElementById('functionalToggle').checked,
+                payment: document.getElementById('paymentToggle').checked
+            };
+            
+            localStorage.setItem('cookiePreferences', JSON.stringify(preferences));
+            
+            // Show confirmation
+            alert('Cookie preferences saved! Your settings will be applied on your next visit.');
+        }
+        
+        // Load saved preferences
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = JSON.parse(localStorage.getItem('cookiePreferences') || '{}');
+            
+            if (saved.analytics !== undefined) {
+                document.getElementById('analyticsToggle').checked = saved.analytics;
+            }
+            if (saved.functional !== undefined) {
+                document.getElementById('functionalToggle').checked = saved.functional;
+            }
+            if (saved.payment !== undefined) {
+                document.getElementById('paymentToggle').checked = saved.payment;
+            }
+        });
+    </script>
+</body>
+</html>

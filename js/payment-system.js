@@ -9,12 +9,12 @@ class PaymentSystem {
                 instructions: 'Send payment to: $AndrewsVilla',
                 color: '#00D632'
             },
-            bitcoin: {
-                name: 'Bitcoin (BTC)',
-                icon: 'fab fa-bitcoin',
-                description: 'Cryptocurrency payment',
-                instructions: 'Send BTC to: bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-                color: '#F7931A'
+            crypto: {
+                name: 'Crypto Payment',
+                icon: 'fab fa-ethereum',
+                description: 'Various cryptocurrencies accepted',
+                instructions: 'Send crypto to: 0x742d35Cc6634C0532925a3b844Bc9e...',
+                color: '#627EEA'
             },
             chime: {
                 name: 'Chime',
