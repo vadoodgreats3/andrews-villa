@@ -1,5 +1,5 @@
 // API Configuration - POINTS TO YOUR LIVE BACKEND
-const API_BASE_URL = 'https://andrews-villa.onrender.com/api';
+const API_BASE_URL = 'https://andrews-villa-api.onrender.com/api';
 
 // Helper function for making authenticated API calls
 async function apiFetch(endpoint, options = {}) {
