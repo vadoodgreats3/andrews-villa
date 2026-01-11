@@ -16,8 +16,14 @@ const PORT = process.env.PORT || 3000;
 
 // ========== MIDDLEWARE ==========
 app.use(cors({
-    origin: ['https://andrews-villa.onrender.com'],
-    credentials: true
+    origin: [
+        'http://localhost:8080', 
+        'https://andrews-villa.onrender.com',
+        'https://andrews-villa-frontend.onrender.com'  // ADD THIS LINE
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -949,3 +949,58 @@ p {
 }
     }
 }
+/* ============================================
+   RESPONSIVE DASHBOARD FIX - CRITICAL
+   ============================================ */
+
+/* Fix dashboard visibility at normal size */
+@media (min-width: 769px) {
+    .dashboard {
+        display: grid !important;
+        grid-template-columns: 280px 1fr !important;
+        min-height: 100vh !important;
+    }
+    
+    .sidebar {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .dashboard-content {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Remove pre-written demo content CSS */
+.dashboard::before,
+.dashboard-content::before,
+.sidebar::before {
+    content: none !important;
+}
+
+/* Force dashboard elements to be visible */
+.dashboard,
+.dashboard * {
+    display: revert !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Remove any hidden states */
+[style*="display: none"],
+[style*="visibility: hidden"],
+[style*="opacity: 0"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Fix the specific issue where dashboard hides at normal size */
+body:not(.mobile) .dashboard,
+body:not(.tablet) .dashboard {
+    display: grid !important;
+    grid-template-columns: 280px 1fr !important;
+}
