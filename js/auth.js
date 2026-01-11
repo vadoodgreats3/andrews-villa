@@ -1,3 +1,30 @@
+// API Configuration - POINTS TO YOUR LIVE BACKEND
+const API_BASE_URL = 'https://andrews-villa.onrender.com/api';
+
+// Helper function for making authenticated API calls
+async function apiFetch(endpoint, options = {}) {
+    const token = localStorage.getItem('authToken');
+    
+    const defaultHeaders = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...options.headers
+    };
+    
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers: defaultHeaders
+    });
+    
+    if (response.status === 401) {
+        // Token expired or invalid
+        localStorage.clear();
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    return response;
+}
 // Authentication System for Andrews Villa
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Authentication system initialized');
@@ -17,12 +44,12 @@ function initLoginForm() {
     const loginForm = document.getElementById('loginForm');
     if (!loginForm) return;
     
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
-        const role = document.getElementById('role').value;
+        const role = document.getElementById('role').value; // This will be handled by backend
         
         // Show loading state
         const submitBtn = loginForm.querySelector('button[type="submit"]');
@@ -30,36 +57,49 @@ function initLoginForm() {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
         submitBtn.disabled = true;
         
-        // Simulate API call delay
-        setTimeout(() => {
-            const loginSuccess = authenticateUser(username, password, role);
+        try {
+            // Call your LIVE backend API
+            const response = await fetch('https://andrews-villa.onrender.com/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: username,
+                    password: password
+                })
+            });
             
-            if (loginSuccess) {
-                showSuccess('Login successful! Redirecting...');
-                
-                // Save login state
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userRole', role);
-                localStorage.setItem('username', username);
-                
-                // Remember login for 7 days
-                const loginData = {
-                    username: username,
-                    role: role,
-                    timestamp: Date.now()
-                };
-                localStorage.setItem('rememberedLogin', JSON.stringify(loginData));
-                
-                // Redirect after delay
-                setTimeout(() => {
-                    redirectToDashboard();
-                }, 1500);
-            } else {
-                showError('Invalid credentials. Please try again.');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+            const data = await response.json();
+            
+            if (!response.ok) {
+                // Handle API errors (invalid credentials, server error, etc.)
+                throw new Error(data.error || 'Login failed');
             }
-        }, 1500);
+            
+            // Login successful - save token and user data
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('userData', JSON.stringify(data.user));
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userRole', data.user.role);
+            
+            showSuccess('Login successful! Redirecting...');
+            
+            // Redirect based on role
+            setTimeout(() => {
+                if (data.user.role === 'admin') {
+                    window.location.href = 'dashboard-admin.html';
+                } else {
+                    window.location.href = 'dashboard-client.html';
+                }
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            showError(error.message || 'Login failed. Please try again.');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
     });
 }
 
