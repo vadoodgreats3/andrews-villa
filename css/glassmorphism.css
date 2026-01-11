@@ -1,0 +1,122 @@
+/* Glassmorphism Effects - Based on modern UI trends[citation:3][citation:8] */
+.glass-card {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
+}
+
+.glass-nav {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-bg {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%, 
+        rgba(255, 255, 255, 0.1) 100%
+    );
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+}
+
+/* Enhanced glass effect for premium feel */
+.glass-premium {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(25px) saturate(200%);
+    -webkit-backdrop-filter: blur(25px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 
+        0 8px 32px rgba(31, 38, 135, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Subtle gradients for depth */
+.glass-gradient {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
+}
+
+/* Hover effects for glass elements */
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 12px 40px rgba(31, 38, 135, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Text on glass backgrounds */
+.glass-text {
+    color: var(--text-primary);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Glass buttons */
+.glass-btn {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.glass-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Glass inputs */
+.glass-input {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+}
+
+.glass-input:focus {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments for glass effects */
+@media (max-width: 768px) {
+    .glass-card,
+    .glass-nav {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+}
+
+/* Accessibility improvements for glassmorphism */
+@media (prefers-reduced-transparency: reduce) {
+    .glass-card,
+    .glass-nav,
+    .glass-bg {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: var(--bg-card);
+    }
+}
+
+/* Print styles */
+@media print {
+    .glass-card,
+    .glass-nav {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: white !important;
+        border: 1px solid #ddd;
+    }
+}

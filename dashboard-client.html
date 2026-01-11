@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard | Andrews Villa</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/glassmorphism.css">
+    <link rel="stylesheet" href="css/dark-mode.css" disabled>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Dashboard Specific Styles */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+        
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1rem;
+            position: fixed;
+            top: 80px;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            overflow-y: auto;
+        }
+        
+        .dashboard-content {
+            margin-left: 280px;
+            padding: 2rem;
+        }
+        
+        .user-profile {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        
+        .menu-item:hover,
+        .menu-item.active {
+            background: var(--bg-primary);
+            color: var(--primary-color);
+        }
+        
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .dashboard-section {
+            display: none;
+        }
+        
+        .dashboard-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .stat-content {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+        
+        .chat-header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            position: relative;
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.admin {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            opacity: 0.7;
+        }
+        
+        .chat-input {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .dashboard-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar glass-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-home"></i>
+                <span>Andrews Villa</span>
+            </a>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn btn-outline" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Layout -->
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-card">
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">JD</div>
+                <h3 id="userName">John Doe</h3>
+                <p class="text-secondary" id="userEmail">john.doe@example.com</p>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="#profile" class="menu-item active" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    <span>Profile Management</span>
+                </a>
+                
+                <a href="#saved" class="menu-item" data-section="saved">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Saved Properties</span>
+                </a>
+                
+                <a href="#applications" class="menu-item" data-section="applications">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Applications & Bookings</span>
+                </a>
+                
+                <a href="#payments" class="menu-item" data-section="payments">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Payment History</span>
+                </a>
+                
+                <a href="#documents" class="menu-item" data-section="documents">
+                    <i class="fas fa-folder"></i>
+                    <span>Document Storage</span>
+                </a>
+                
+                <a href="#notifications" class="menu-item" data-section="notifications">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+                
+                <a href="#chat" class="menu-item" data-section="chat">
+                    <i class="fas fa-comments"></i>
+                    <span>Chat with Admin</span>
+                </a>
+                
+                <a href="#security" class="menu-item" data-section="security">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Change Password</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Profile Section -->
+            <section id="profileSection" class="dashboard-section active">
+                <div class="section-header">
+                    <h2>Profile Management</h2>
+                    <p>Manage your personal information and preferences</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="savedCount">3</div>
+                            <div class="stat-label">Saved Properties</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="applicationsCount">2</div>
+                            <div class="stat-label">Active Applications</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="paymentsCount">5</div>
+                            <div class="stat-label">Total Payments</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="messagesCount">12</div>
+                            <div class="stat-label">Messages</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-card" style="padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem;">Personal Information</h3>
+                    
+                    <form id="profileForm" class="form-grid">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" value="John" class="glass-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" value="Doe" class="glass-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" value="john.doe@example.com" class="glass-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" value="+1 (555) 123-4567" class="glass-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <textarea id="address" rows="3" class="glass-input">123 Main St, New York, NY</textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Chat Section -->
+            <section id="chatSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Chat with Admin</h2>
+                    <p>Real-time secure communication with Andrews Villa support</p>
+                </div>
+                
+                <div class="chat-container glass-card">
+                    <div class="chat-header">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span>Andrews Villa Support (Online)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Messages will be loaded here -->
+                        <div class="message admin">
+                            <div class="message-content">
+                                Hello John! Welcome to Andrews Villa. How can I assist you today?
+                            </div>
+                            <div class="message-time">10:00 AM</div>
+                        </div>
+                        
+                        <div class="message user">
+                            <div class="message-content">
+                                Hi! I'd like to know more about the Modern Villa in Malibu.
+                            </div>
+                            <div class="message-time">10:02 AM</div>
+                        </div>
+                        
+                        <div class="message admin">
+                            <div class="message-content">
+                                Certainly! The Modern Villa features 4 bedrooms, 3 bathrooms, a swimming pool, and stunning ocean views. Would you like to schedule a virtual tour?
+                            </div>
+                            <div class="message-time">10:03 AM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input">
+                        <input type="text" id="messageInput" placeholder="Type your message..." class="glass-input">
+                        <button class="btn btn-primary" id="sendMessage">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Saved Properties Section -->
+            <section id="savedSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Saved Properties</h2>
+                    <p>Properties you've bookmarked for later</p>
+                </div>
+                
+                <div id="savedProperties">
+                    <!-- Saved properties will be loaded here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/dark-mode.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/chat-system.js"></script>
+</body>
+</html>

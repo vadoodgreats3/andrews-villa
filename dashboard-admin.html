@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Andrews Villa</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/glassmorphism.css">
+    <link rel="stylesheet" href="css/dark-mode.css" disabled>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Admin Dashboard Specific Styles */
+        .admin-dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+        
+        .admin-content {
+            padding: 2rem;
+            background: var(--bg-secondary);
+        }
+        
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: var(--transition);
+        }
+        
+        .admin-stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .stat-trend.positive {
+            color: #2ecc71;
+        }
+        
+        .stat-trend.negative {
+            color: #ff4757;
+        }
+        
+        .admin-section {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .data-table tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-available {
+            background: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+        
+        .status-sold {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+        }
+        
+        .status-rented {
+            background: rgba(241, 196, 15, 0.1);
+            color: #f1c40f;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        
+        .btn-icon:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+        
+        .payment-method i {
+            font-size: 1.25rem;
+        }
+        
+        .system-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            margin-left: auto;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border-color);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background: var(--primary-color);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 1024px) {
+            .admin-dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-content {
+                padding: 1rem;
+            }
+            
+            .admin-stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar glass-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-home"></i>
+                <span>Andrews Villa</span>
+                <span class="badge" style="background: var(--accent-color); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">ADMIN</span>
+            </a>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn btn-outline" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Dashboard Layout -->
+    <div class="admin-dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar glass-card">
+            <div class="user-profile">
+                <div class="user-avatar" style="background: linear-gradient(135deg, #ff6b6b, #ee5a24);">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h3>Administrator</h3>
+                <p class="text-secondary">corner@andrewsvilla.com</p>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="#overview" class="menu-item active" data-section="overview">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Dashboard Overview</span>
+                </a>
+                
+                <a href="#properties" class="menu-item" data-section="properties">
+                    <i class="fas fa-building"></i>
+                    <span>Property Management</span>
+                </a>
+                
+                <a href="#users" class="menu-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+                
+                <a href="#transactions" class="menu-item" data-section="transactions">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Transactions</span>
+                </a>
+                
+                <a href="#messages" class="menu-item" data-section="messages">
+                    <i class="fas fa-comments"></i>
+                    <span>Messages</span>
+                </a>
+                
+                <a href="#company" class="menu-item" data-section="company">
+                    <i class="fas fa-cog"></i>
+                    <span>Company Settings</span>
+                </a>
+                
+                <a href="#payment" class="menu-item" data-section="payment">
+                    <i class="fas fa-wallet"></i>
+                    <span>Payment Methods</span>
+                </a>
+                
+                <a href="#system" class="menu-item" data-section="system">
+                    <i class="fas fa-server"></i>
+                    <span>System Controls</span>
+                </a>
+                
+                <a href="#analytics" class="menu-item" data-section="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics & Logs</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <!-- Overview Section -->
+            <section id="overviewSection" class="dashboard-section active">
+                <div class="section-header">
+                    <h2>Dashboard Overview</h2>
+                    <p>Welcome back, Administrator. Here's what's happening today.</p>
+                </div>
+                
+                <div class="admin-stats">
+                    <div class="admin-stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4361ee, #3a0ca3);">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalProperties">24</div>
+                            <div class="stat-label">Total Properties</div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>12% this month</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #7209b7, #560bad);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalUsers">156</div>
+                            <div class="stat-label">Total Users</div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>8% this month</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f72585, #b5179e);">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalRevenue">$245,800</div>
+                            <div class="stat-label">Total Revenue</div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>24% this month</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4cc9f0, #4895ef);">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="unreadMessages">12</div>
+                            <div class="stat-label">Unread Messages</div>
+                            <div class="stat-trend negative">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>3 new today</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <div class="admin-section-header">
+                        <h3>Recent Activity</h3>
+                        <button class="btn btn-outline btn-sm" id="refreshActivity">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="activity-list" id="activityList">
+                        <!-- Activity items will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Property Management Section -->
+            <section id="propertiesSection" class="dashboard-section">
+                <div class="admin-section">
+                    <div class="admin-section-header">
+                        <h3>Property Management</h3>
+                        <button class="btn btn-primary" id="addPropertyBtn">
+                            <i class="fas fa-plus"></i> Add New Property
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Property</th>
+                                    <th>Type</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="propertiesTable">
+                                <!-- Properties will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management Section -->
+            <section id="usersSection" class="dashboard-section">
+                <div class="admin-section">
+                    <div class="admin-section-header">
+                        <h3>User Management</h3>
+                        <div class="search-box">
+                            <input type="text" placeholder="Search users..." class="glass-input" id="userSearch">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Property Modal -->
+    <div class="modal" id="propertyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Property</h3>
+                <button class="btn-icon" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="propertyForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Property Title</label>
+                            <input type="text" class="form-control glass-input" id="propertyTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select class="form-control glass-input" id="propertyType" required>
+                                <option value="house">House</option>
+                                <option value="apartment">Apartment</option>
+                                <option value="hotel">Hotel Lodge</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="number" class="form-control glass-input" id="propertyPrice" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select class="form-control glass-input" id="propertyStatus" required>
+                                <option value="available">Available</option>
+                                <option value="sold">Sold</option>
+                                <option value="rented">Rented</option>
+                                <option value="unavailable">Unavailable</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" class="form-control glass-input" id="propertyLocation" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control glass-input" id="propertyDescription" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Images (URLs, one per line)</label>
+                        <textarea class="form-control glass-input" id="propertyImages" rows="3" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Bedrooms</label>
+                            <input type="number" class="form-control glass-input" id="propertyBeds" min="1" value="3">
+                        </div>
+                        <div class="form-group">
+                            <label>Bathrooms</label>
+                            <input type="number" class="form-control glass-input" id="propertyBaths" min="1" value="2">
+                        </div>
+                        <div class="form-group">
+                            <label>Square Feet</label>
+                            <input type="number" class="form-control glass-input" id="propertySqft" min="100" value="2000">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelModal">Cancel</button>
+                <button class="btn btn-primary" id="saveProperty">Save Property</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/dark-mode.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard-admin.js"></script>
+</body>
+</html>

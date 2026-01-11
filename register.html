@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Andrews Villa</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/glassmorphism.css">
+    <link rel="stylesheet" href="css/dark-mode.css" disabled>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        [data-theme="dark"] .auth-container {
+            background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 100%);
+        }
+        
+        .auth-card {
+            width: 100%;
+            max-width: 500px;
+            padding: 3rem;
+            border-radius: var(--radius-lg);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .auth-header p {
+            color: var(--text-secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .password-strength {
+            height: 4px;
+            margin-top: 0.5rem;
+            border-radius: 2px;
+            background: var(--border-color);
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            background: #ff4757;
+        }
+        
+        .password-strength.weak .password-strength-bar {
+            width: 25%;
+            background: #ff4757;
+        }
+        
+        .password-strength.fair .password-strength-bar {
+            width: 50%;
+            background: #ffa502;
+        }
+        
+        .password-strength.good .password-strength-bar {
+            width: 75%;
+            background: #2ed573;
+        }
+        
+        .password-strength.strong .password-strength-bar {
+            width: 100%;
+            background: #2ecc71;
+        }
+        
+        .password-hints {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .password-hint {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .password-hint.valid {
+            color: #2ecc71;
+        }
+        
+        .terms-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 2rem 0;
+        }
+        
+        .terms-check input[type="checkbox"] {
+            margin-top: 0.25rem;
+        }
+        
+        .terms-check label {
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .terms-check a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .terms-check a:hover {
+            text-decoration: underline;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .auth-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .success-message {
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card glass-card">
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Join Andrews Villa to start your property journey</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText"></span>
+            </div>
+            
+            <div class="success-message" id="successMessage">
+                <i class="fas fa-check-circle"></i>
+                <span id="successText"></span>
+            </div>
+            
+            <form id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" class="form-control glass-input" 
+                               placeholder="Enter your first name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" class="form-control glass-input" 
+                               placeholder="Enter your last name" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control glass-input" 
+                           placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" class="form-control glass-input" 
+                           placeholder="Enter your phone number" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="password" class="form-control glass-input" 
+                               placeholder="Create a strong password" required minlength="8">
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="password-strength-bar"></div>
+                    </div>
+                    <div class="password-hints" id="passwordHints">
+                        <span class="password-hint" id="hintLength">
+                            <i class="fas fa-times"></i> At least 8 characters
+                        </span>
+                        <span class="password-hint" id="hintUppercase">
+                            <i class="fas fa-times"></i> Uppercase letter
+                        </span>
+                        <span class="password-hint" id="hintLowercase">
+                            <i class="fas fa-times"></i> Lowercase letter
+                        </span>
+                        <span class="password-hint" id="hintNumber">
+                            <i class="fas fa-times"></i> Number
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="password-container">
+                        <input type="password" id="confirmPassword" class="form-control glass-input" 
+                               placeholder="Confirm your password" required>
+                        <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-hints">
+                        <span class="password-hint" id="hintMatch">
+                            <i class="fas fa-times"></i> Passwords must match
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="terms-check">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>. 
+                        I understand that my data will be processed securely.
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="login.html">Sign in here</a></p>
+                <p><a href="index.html">← Back to Homepage</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dark-mode.js"></script>
+    <script>
+        // Registration functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Registration page initialized');
+            
+            // Initialize components
+            initPasswordToggles();
+            initPasswordValidation();
+            initRegistrationForm();
+        });
+        
+        function initPasswordToggles() {
+            // Toggle password visibility
+            const togglePassword = document.getElementById('togglePassword');
+            const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+            
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.type === 'password' ? 'text' : 'password';
+                    passwordInput.type = type;
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+            }
+            
+            if (toggleConfirmPassword) {
+                toggleConfirmPassword.addEventListener('click', function() {
+                    const type = confirmInput.type === 'password' ? 'text' : 'password';
+                    confirmInput.type = type;
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+            }
+        }
+        
+        function initPasswordValidation() {
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+            const strengthBar = document.getElementById('passwordStrength');
+            const hints = {
+                length: document.getElementById('hintLength'),
+                uppercase: document.getElementById('hintUppercase'),
+                lowercase: document.getElementById('hintLowercase'),
+                number: document.getElementById('hintNumber'),
+                match: document.getElementById('hintMatch')
+            };
+            
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    
+                    // Check criteria
+                    const hasLength = password.length >= 8;
+                    const hasUppercase = /[A-Z]/.test(password);
+                    const hasLowercase = /[a-z]/.test(password);
+                    const hasNumber = /[0-9]/.test(password);
+                    
+                    // Update hints
+                    updateHint(hints.length, hasLength);
+                    updateHint(hints.uppercase, hasUppercase);
+                    updateHint(hints.lowercase, hasLowercase);
+                    updateHint(hints.number, hasNumber);
+                    
+                    // Update strength bar
+                    let strength = 0;
+                    if (hasLength) strength += 25;
+                    if (hasUppercase) strength += 25;
+                    if (hasLowercase) strength += 25;
+                    if (hasNumber) strength += 25;
+                    
+                    strengthBar.className = 'password-strength';
+                    if (strength >= 25) strengthBar.classList.add('weak');
+                    if (strength >= 50) strengthBar.classList.add('fair');
+                    if (strength >= 75) strengthBar.classList.add('good');
+                    if (strength >= 100) strengthBar.classList.add('strong');
+                    
+                    strengthBar.querySelector('.password-strength-bar').style.width = strength + '%';
+                });
+            }
+            
+            if (confirmInput) {
+                confirmInput.addEventListener('input', function() {
+                    const password = document.getElementById('password').value;
+                    const confirm = this.value;
+                    const passwordsMatch = password === confirm && password.length > 0;
+                    
+                    updateHint(hints.match, passwordsMatch);
+                });
+            }
+            
+            function updateHint(element, isValid) {
+                if (!element) return;
+                
+                const icon = element.querySelector('i');
+                if (icon) {
+                    icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+                }
+                element.classList.toggle('valid', isValid);
+            }
+        }
+        
+        function initRegistrationForm() {
+            const form = document.getElementById('registerForm');
+            if (!form) return;
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate form
+                if (!validateRegistrationForm()) {
+                    return;
+                }
+                
+                // Get form data
+                const userData = {
+                    firstName: document.getElementById('firstName').value.trim(),
+                    lastName: document.getElementById('lastName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    password: document.getElementById('password').value
+                };
+                
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+                submitBtn.disabled = true;
+                
+                // Simulate API call
+                setTimeout(() => {
+                    // Check if email already exists
+                    const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                    const emailExists = registeredUsers.some(u => u.email === userData.email);
+                    
+                    if (emailExists) {
+                        showError('Email address already registered. Please use a different email or login.');
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        return;
+                    }
+                    
+                    // Save user (in real system, password would be hashed)
+                    registeredUsers.push({
+                        id: 'user_' + Date.now(),
+                        ...userData,
+                        role: 'client',
+                        createdAt: new Date().toISOString()
+                    });
+                    
+                    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+                    
+                    // Auto-login
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userRole', 'client');
+                    localStorage.setItem('username', userData.email);
+                    localStorage.setItem('userData', JSON.stringify({
+                        firstName: userData.firstName,
+                        lastName: userData.lastName,
+                        email: userData.email,
+                        phone: userData.phone
+                    }));
+                    
+                    // Show success message
+                    showSuccess('Account created successfully! Redirecting to dashboard...');
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = 'dashboard-client.html';
+                    }, 1500);
+                    
+                }, 2000);
+            });
+        }
+        
+        function validateRegistrationForm() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+            
+            // Basic validation
+            if (!firstName || !lastName) {
+                showError('Please enter your first and last name');
+                return false;
+            }
+            
+            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showError('Please enter a valid email address');
+                return false;
+            }
+            
+            if (!phone || phone.length < 10) {
+                showError('Please enter a valid phone number');
+                return false;
+            }
+            
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters long');
+                return false;
+            }
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return false;
+            }
+            
+            if (!terms) {
+                showError('Please accept the Terms of Service and Privacy Policy');
+                return false;
+            }
+            
+            // Password strength validation
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasLowercase = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            
+            if (!hasUppercase || !hasLowercase || !hasNumber) {
+                showError('Password must contain uppercase letters, lowercase letters, and numbers');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            if (errorDiv && errorText) {
+                errorText.textContent = message;
+                errorDiv.style.display = 'flex';
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+            
+            if (successDiv && successText) {
+                successText.textContent = message;
+                successDiv.style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>

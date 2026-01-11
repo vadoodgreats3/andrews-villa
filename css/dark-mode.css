@@ -1,0 +1,57 @@
+/* Dark Mode Variables */
+[data-theme="dark"] {
+    --primary-color: #5a7dff;
+    --secondary-color: #4a25ff;
+    --accent-color: #9d4edd;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b8d9;
+    --bg-primary: #0a0a12;
+    --bg-secondary: #151523;
+    --bg-card: #1e1e32;
+    --border-color: #2a2a45;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Mode Specific Styles */
+[data-theme="dark"] .hero-background {
+    background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 100%);
+}
+
+[data-theme="dark"] .hero-background::after {
+    opacity: 0.05;
+}
+
+[data-theme="dark"] .theme-toggle i::before {
+    content: "\f185"; /* Sun icon for dark mode */
+}
+
+[data-theme="dark"] .search-input input,
+[data-theme="dark"] .search-input select {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .search-input input::placeholder,
+[data-theme="dark"] .search-input select::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Glassmorphism adjustments for dark mode */
+[data-theme="dark"] .glass-card {
+    background: rgba(30, 30, 50, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .glass-nav {
+    background: rgba(10, 10, 18, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+}
+
+[data-theme="dark"] .glass-bg {
+    background: linear-gradient(135deg, 
+        rgba(26, 26, 46, 0.8) 0%, 
+        rgba(42, 42, 70, 0.8) 100%
+    ) !important;
+}
