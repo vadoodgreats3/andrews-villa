@@ -1,414 +1,229 @@
-// Andrews Villa - Production Authentication System
-// ===============================================
-
-// API Configuration - UPDATE THIS WITH YOUR ACTUAL BACKEND URL
-const API_BASE_URL = 'https://andrews-villa-api.onrender.com/api';
-
-// Store for fallback data
-window.appData = {
-    user: null,
-    properties: [],
-    saved: []
-};
-
+// Andrews Villa - WORKING Authentication System
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Auth system initialized');
+    console.log('✅ Auth system loaded');
     
-    // Initialize based on current page
-    if (document.getElementById('loginForm')) {
-        initLoginForm();
-    }
-    if (document.getElementById('registerForm')) {
-        initRegistrationForm();
+    // Check if we're on login page
+    if (window.location.pathname.includes('login.html') || document.getElementById('loginForm')) {
+        setupLoginForm();
     }
     
-    // Check if user is already logged in
-    checkAuthStatus();
+    // Check if we're on register page
+    if (window.location.pathname.includes('register.html') || document.getElementById('registerForm')) {
+        setupRegistrationForm();
+    }
     
-    // Initialize password toggles
-    initPasswordToggles();
+    // Setup logout if button exists
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
+    }
+    
+    // Update navigation based on login status
+    updateNavigation();
 });
 
-// ========== AUTHENTICATION FUNCTIONS ==========
+// Configuration - CHANGE THIS TO YOUR ACTUAL BACKEND URL
+const API_URL = 'https://andrews-villa-api.onrender.com/api';
 
-async function initLoginForm() {
-    const form = document.getElementById('loginForm');
-    if (!form) return;
+// ========== LOGIN FUNCTION ==========
+function setupLoginForm() {
+    const loginForm = document.getElementById('loginForm');
+    if (!loginForm) return;
     
-    form.addEventListener('submit', async function(e) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const email = document.getElementById('username')?.value.trim() || 
-                      document.getElementById('email')?.value.trim();
+        const email = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
         
         if (!email || !password) {
-            showNotification('Please fill in all fields', 'error');
+            alert('Please enter both email and password');
             return;
         }
         
-        const submitBtn = form.querySelector('button[type="submit"]');
+        // Show loading
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
         submitBtn.disabled = true;
         
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            console.log('Attempting login to:', API_URL + '/auth/login');
+            
+            const response = await fetch(API_URL + '/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
             });
             
-            const data = await response.json();
+            console.log('Response status:', response.status);
             
             if (!response.ok) {
-                throw new Error(data.error || `Login failed (${response.status})`);
+                const errorText = await response.text();
+                console.error('Login failed:', errorText);
+                throw new Error('Login failed. Please check credentials.');
             }
             
-            // Save auth data
+            const data = await response.json();
+            console.log('Login successful:', data);
+            
+            // Store user data
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('userData', JSON.stringify(data.user));
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userRole', data.user.role);
             
-            showNotification('Login successful! Redirecting...', 'success');
+            // Show success message
+            alert('Login successful! Redirecting...');
             
-            // Redirect with delay for user to see message
+            // Redirect based on role
             setTimeout(() => {
                 if (data.user.role === 'admin') {
                     window.location.href = 'dashboard-admin.html';
                 } else {
                     window.location.href = 'dashboard-client.html';
                 }
-            }, 1500);
+            }, 1000);
             
         } catch (error) {
-            console.error('Login error:', error);
-            showNotification(error.message || 'Network error. Please check your connection.', 'error');
+            console.error('Login error details:', error);
+            alert('Login failed: ' + error.message + '\n\nCheck browser console (F12) for details.');
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
     });
 }
 
-async function initRegistrationForm() {
-    const form = document.getElementById('registerForm');
-    if (!form) return;
+// ========== REGISTRATION FUNCTION ==========
+function setupRegistrationForm() {
+    const registerForm = document.getElementById('registerForm');
+    if (!registerForm) return;
     
-    // Initialize password validation
-    initPasswordValidation();
-    
-    form.addEventListener('submit', async function(e) {
+    registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        // Validate form
-        if (!validateRegistrationForm()) {
-            return;
-        }
-        
-        const userData = {
+        // Get form data
+        const formData = {
             firstName: document.getElementById('firstName').value.trim(),
             lastName: document.getElementById('lastName').value.trim(),
             email: document.getElementById('email').value.trim(),
-            phone: document.getElementById('phone')?.value.trim() || '',
-            password: document.getElementById('password').value
+            password: document.getElementById('password').value,
+            phone: document.getElementById('phone').value.trim()
         };
         
-        const submitBtn = form.querySelector('button[type="submit"]');
+        // Basic validation
+        if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        if (formData.password.length < 8) {
+            alert('Password must be at least 8 characters');
+            return;
+        }
+        
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        if (formData.password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+        
+        // Show loading
+        const submitBtn = registerForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
         submitBtn.disabled = true;
         
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            console.log('Attempting registration to:', API_URL + '/auth/register');
+            
+            const response = await fetch(API_URL + '/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify(userData)
+                body: JSON.stringify(formData)
             });
             
-            const data = await response.json();
+            console.log('Response status:', response.status);
             
             if (!response.ok) {
-                throw new Error(data.error || `Registration failed (${response.status})`);
+                const errorText = await response.text();
+                console.error('Registration failed:', errorText);
+                throw new Error('Registration failed. Email may already exist.');
             }
             
-            // Auto-login after registration
+            const data = await response.json();
+            console.log('Registration successful:', data);
+            
+            // Auto-login
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('userData', JSON.stringify(data.user));
             localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userRole', data.user.role);
             
-            showNotification('Account created successfully!', 'success');
+            alert('Account created successfully! Redirecting to dashboard...');
             
-            // Redirect to dashboard
             setTimeout(() => {
                 window.location.href = 'dashboard-client.html';
-            }, 1500);
+            }, 1000);
             
         } catch (error) {
             console.error('Registration error:', error);
-            showNotification(error.message || 'Registration failed. Please try again.', 'error');
+            alert('Registration failed: ' + error.message);
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
     });
 }
 
-// ========== HELPER FUNCTIONS ==========
-
-function checkAuthStatus() {
-    const token = localStorage.getItem('authToken');
+// ========== NAVIGATION UPDATE ==========
+function updateNavigation() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loginLink = document.querySelector('a[href="login.html"]');
+    const dashboardLink = document.querySelector('a[href*="dashboard"]');
     
-    // Update UI based on auth status
-    const loginBtn = document.querySelector('a[href="login.html"]');
-    const dashboardBtn = document.querySelector('a[href*="dashboard"]');
-    
-    if (isLoggedIn && token) {
-        if (loginBtn) {
-            loginBtn.textContent = 'Logout';
-            loginBtn.href = '#';
-            loginBtn.onclick = function(e) {
+    if (isLoggedIn) {
+        if (loginLink) {
+            loginLink.textContent = 'Logout';
+            loginLink.href = '#';
+            loginLink.onclick = function(e) {
                 e.preventDefault();
-                logout();
+                localStorage.clear();
+                window.location.href = 'index.html';
             };
         }
         
-        // Load user data
+        // Update dashboard link based on role
         const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-        window.appData.user = userData;
-        
-        // Update dashboard button text
-        if (dashboardBtn) {
-            if (userData.role === 'admin') {
-                dashboardBtn.textContent = 'Admin Dashboard';
-                dashboardBtn.href = 'dashboard-admin.html';
-            }
+        if (dashboardLink && userData.role === 'admin') {
+            dashboardLink.href = 'dashboard-admin.html';
+            dashboardLink.textContent = 'Admin Dashboard';
         }
     }
 }
 
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        localStorage.clear();
-        showNotification('Logged out successfully', 'success');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
-    }
+// ========== HELPER FUNCTIONS ==========
+function getAuthToken() {
+    return localStorage.getItem('authToken');
 }
 
-// API fetch helper with authentication
-async function apiFetch(endpoint, options = {}) {
-    const token = localStorage.getItem('authToken');
-    
-    const headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-        ...options.headers
-    };
-    
+function isAuthenticated() {
+    return localStorage.getItem('isLoggedIn') === 'true';
+}
+
+function getUserData() {
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            ...options,
-            headers
-        });
-        
-        if (response.status === 401) {
-            // Token expired
-            localStorage.clear();
-            window.location.href = 'login.html?expired=true';
-            throw new Error('Session expired');
-        }
-        
-        return response;
-    } catch (error) {
-        console.error('API fetch error:', error);
-        throw error;
+        return JSON.parse(localStorage.getItem('userData') || '{}');
+    } catch {
+        return {};
     }
 }
-
-// ========== UI HELPERS ==========
-
-function showNotification(message, type = 'info') {
-    // Remove existing notifications
-    const existing = document.querySelectorAll('.global-notification');
-    existing.forEach(n => n.remove());
-    
-    const notification = document.createElement('div');
-    notification.className = `global-notification notification-${type}`;
-    notification.innerHTML = `
-        <div style="
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-            color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            animation: slideIn 0.3s ease;
-            max-width: 400px;
-        ">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-            <span>${message}</span>
-            <button onclick="this.parentElement.remove()" style="
-                background: none;
-                border: none;
-                color: white;
-                cursor: pointer;
-                margin-left: 1rem;
-            ">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.remove();
-        }
-    }, 5000);
-}
-
-function initPasswordToggles() {
-    document.querySelectorAll('.password-toggle').forEach(toggle => {
-        toggle.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('input');
-            const icon = this.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fas fa-eye-slash';
-            } else {
-                input.type = 'password';
-                icon.className = 'fas fa-eye';
-            }
-        });
-    });
-}
-
-function initPasswordValidation() {
-    const passwordInput = document.getElementById('password');
-    if (!passwordInput) return;
-    
-    passwordInput.addEventListener('input', function() {
-        const password = this.value;
-        const hints = {
-            length: document.getElementById('hintLength'),
-            uppercase: document.getElementById('hintUppercase'),
-            lowercase: document.getElementById('hintLowercase'),
-            number: document.getElementById('hintNumber')
-        };
-        
-        if (hints.length) {
-            const isValid = password.length >= 8;
-            updateHint(hints.length, isValid);
-        }
-        if (hints.uppercase) {
-            const isValid = /[A-Z]/.test(password);
-            updateHint(hints.uppercase, isValid);
-        }
-        if (hints.lowercase) {
-            const isValid = /[a-z]/.test(password);
-            updateHint(hints.lowercase, isValid);
-        }
-        if (hints.number) {
-            const isValid = /[0-9]/.test(password);
-            updateHint(hints.number, isValid);
-        }
-    });
-    
-    // Confirm password matching
-    const confirmInput = document.getElementById('confirmPassword');
-    if (confirmInput) {
-        confirmInput.addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const hint = document.getElementById('hintMatch');
-            if (hint) {
-                const isValid = password === this.value && password.length > 0;
-                updateHint(hint, isValid);
-            }
-        });
-    }
-}
-
-function updateHint(element, isValid) {
-    if (!element) return;
-    
-    const icon = element.querySelector('i');
-    if (icon) {
-        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
-        icon.style.color = isValid ? '#10b981' : '#ef4444';
-    }
-    element.style.color = isValid ? '#10b981' : '#6b7280';
-}
-
-function validateRegistrationForm() {
-    const firstName = document.getElementById('firstName')?.value.trim();
-    const lastName = document.getElementById('lastName')?.value.trim();
-    const email = document.getElementById('email')?.value.trim();
-    const password = document.getElementById('password')?.value;
-    const confirmPassword = document.getElementById('confirmPassword')?.value;
-    const terms = document.getElementById('terms')?.checked;
-    
-    // Basic validation
-    const errors = [];
-    
-    if (!firstName || !lastName) {
-        errors.push('Please enter your full name');
-    }
-    
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errors.push('Please enter a valid email address');
-    }
-    
-    if (!password || password.length < 8) {
-        errors.push('Password must be at least 8 characters');
-    }
-    
-    if (password !== confirmPassword) {
-        errors.push('Passwords do not match');
-    }
-    
-    if (!terms) {
-        errors.push('Please accept the Terms of Service');
-    }
-    
-    // Password strength
-    if (password) {
-        const hasUppercase = /[A-Z]/.test(password);
-        const hasLowercase = /[a-z]/.test(password);
-        const hasNumber = /[0-9]/.test(password);
-        
-        if (!hasUppercase || !hasLowercase || !hasNumber) {
-            errors.push('Password must include uppercase, lowercase letters, and numbers');
-        }
-    }
-    
-    if (errors.length > 0) {
-        showNotification(errors[0], 'error');
-        return false;
-    }
-    
-    return true;
-}
-
-// Make functions available globally
-window.showNotification = showNotification;
-window.logout = logout;
-window.apiFetch = apiFetch;
