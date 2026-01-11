@@ -1,91 +1,82 @@
-// API Configuration - POINTS TO YOUR LIVE BACKEND
+// Andrews Villa - Production Authentication System
+// ===============================================
+
+// API Configuration - UPDATE THIS WITH YOUR ACTUAL BACKEND URL
 const API_BASE_URL = 'https://andrews-villa-api.onrender.com/api';
 
-// Helper function for making authenticated API calls
-async function apiFetch(endpoint, options = {}) {
-    const token = localStorage.getItem('authToken');
-    
-    const defaultHeaders = {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-        ...options.headers
-    };
-    
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers: defaultHeaders
-    });
-    
-    if (response.status === 401) {
-        // Token expired or invalid
-        localStorage.clear();
-        window.location.href = 'login.html';
-        return;
-    }
-    
-    return response;
-}
-// Authentication System for Andrews Villa
+// Store for fallback data
+window.appData = {
+    user: null,
+    properties: [],
+    saved: []
+};
+
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Authentication system initialized');
+    console.log('Auth system initialized');
     
-    // Initialize components
-    initLoginForm();
-    initPasswordToggle();
-    checkRememberedLogin();
+    // Initialize based on current page
+    if (document.getElementById('loginForm')) {
+        initLoginForm();
+    }
+    if (document.getElementById('registerForm')) {
+        initRegistrationForm();
+    }
     
     // Check if user is already logged in
-    if (isLoggedIn()) {
-        redirectToDashboard();
-    }
+    checkAuthStatus();
+    
+    // Initialize password toggles
+    initPasswordToggles();
 });
 
-function initLoginForm() {
-    const loginForm = document.getElementById('loginForm');
-    if (!loginForm) return;
+// ========== AUTHENTICATION FUNCTIONS ==========
+
+async function initLoginForm() {
+    const form = document.getElementById('loginForm');
+    if (!form) return;
     
-    loginForm.addEventListener('submit', async function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('username')?.value.trim() || 
+                      document.getElementById('email')?.value.trim();
         const password = document.getElementById('password').value;
-        const role = document.getElementById('role').value; // This will be handled by backend
         
-        // Show loading state
-        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        if (!email || !password) {
+            showNotification('Please fill in all fields', 'error');
+            return;
+        }
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
         submitBtn.disabled = true;
         
         try {
-            // Call your LIVE backend API
-            const response = await fetch('https://andrews-villa.onrender.com/api/auth/login', {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({
-                    email: username,
-                    password: password
-                })
+                body: JSON.stringify({ email, password })
             });
             
             const data = await response.json();
             
             if (!response.ok) {
-                // Handle API errors (invalid credentials, server error, etc.)
-                throw new Error(data.error || 'Login failed');
+                throw new Error(data.error || `Login failed (${response.status})`);
             }
             
-            // Login successful - save token and user data
+            // Save auth data
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('userData', JSON.stringify(data.user));
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userRole', data.user.role);
             
-            showSuccess('Login successful! Redirecting...');
+            showNotification('Login successful! Redirecting...', 'success');
             
-            // Redirect based on role
+            // Redirect with delay for user to see message
             setTimeout(() => {
                 if (data.user.role === 'admin') {
                     window.location.href = 'dashboard-admin.html';
@@ -96,156 +87,328 @@ function initLoginForm() {
             
         } catch (error) {
             console.error('Login error:', error);
-            showError(error.message || 'Login failed. Please try again.');
+            showNotification(error.message || 'Network error. Please check your connection.', 'error');
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
     });
 }
 
-function authenticateUser(username, password, role) {
-    // Admin authentication
-    if (role === 'admin') {
-        return username === 'corner' && password === 'cornerdooradmin4life';
-    }
+async function initRegistrationForm() {
+    const form = document.getElementById('registerForm');
+    if (!form) return;
     
-    // Client authentication (demo users)
-    const demoUsers = {
-        'client@andrewsvilla.com': 'client123',
-        'john@example.com': 'john123',
-        'sarah@example.com': 'sarah123',
-        'demo': 'demo123'
-    };
+    // Initialize password validation
+    initPasswordValidation();
     
-    return demoUsers[username] === password;
-}
-
-function initPasswordToggle() {
-    const toggleBtn = document.getElementById('togglePassword');
-    if (!toggleBtn) return;
-    
-    toggleBtn.addEventListener('click', function() {
-        const passwordInput = document.getElementById('password');
-        const icon = this.querySelector('i');
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.className = 'fas fa-eye-slash';
-        } else {
-            passwordInput.type = 'password';
-            icon.className = 'fas fa-eye';
+        // Validate form
+        if (!validateRegistrationForm()) {
+            return;
+        }
+        
+        const userData = {
+            firstName: document.getElementById('firstName').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone')?.value.trim() || '',
+            password: document.getElementById('password').value
+        };
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+        submitBtn.disabled = true;
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || `Registration failed (${response.status})`);
+            }
+            
+            // Auto-login after registration
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('userData', JSON.stringify(data.user));
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userRole', data.user.role);
+            
+            showNotification('Account created successfully!', 'success');
+            
+            // Redirect to dashboard
+            setTimeout(() => {
+                window.location.href = 'dashboard-client.html';
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Registration error:', error);
+            showNotification(error.message || 'Registration failed. Please try again.', 'error');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
         }
     });
 }
 
-function showError(message) {
-    const errorDiv = document.getElementById('errorMessage');
-    const errorText = document.getElementById('errorText');
+// ========== HELPER FUNCTIONS ==========
+
+function checkAuthStatus() {
+    const token = localStorage.getItem('authToken');
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
-    if (errorDiv && errorText) {
-        errorText.textContent = message;
-        errorDiv.style.display = 'flex';
-        errorDiv.style.alignItems = 'center';
-        errorDiv.style.gap = '0.5rem';
+    // Update UI based on auth status
+    const loginBtn = document.querySelector('a[href="login.html"]');
+    const dashboardBtn = document.querySelector('a[href*="dashboard"]');
+    
+    if (isLoggedIn && token) {
+        if (loginBtn) {
+            loginBtn.textContent = 'Logout';
+            loginBtn.href = '#';
+            loginBtn.onclick = function(e) {
+                e.preventDefault();
+                logout();
+            };
+        }
         
-        // Auto-hide after 5 seconds
+        // Load user data
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        window.appData.user = userData;
+        
+        // Update dashboard button text
+        if (dashboardBtn) {
+            if (userData.role === 'admin') {
+                dashboardBtn.textContent = 'Admin Dashboard';
+                dashboardBtn.href = 'dashboard-admin.html';
+            }
+        }
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.clear();
+        showNotification('Logged out successfully', 'success');
         setTimeout(() => {
-            errorDiv.style.display = 'none';
-        }, 5000);
+            window.location.href = 'index.html';
+        }, 1000);
     }
 }
 
-function showSuccess(message) {
-    const successDiv = document.getElementById('successMessage');
-    const successText = document.getElementById('successText');
+// API fetch helper with authentication
+async function apiFetch(endpoint, options = {}) {
+    const token = localStorage.getItem('authToken');
     
-    if (successDiv && successText) {
-        successText.textContent = message;
-        successDiv.style.display = 'flex';
-        successDiv.style.alignItems = 'center';
-        successDiv.style.gap = '0.5rem';
-    }
-}
-
-function isLoggedIn() {
-    return localStorage.getItem('isLoggedIn') === 'true';
-}
-
-function redirectToDashboard() {
-    const role = localStorage.getItem('userRole') || 'client';
-    
-    if (role === 'admin') {
-        window.location.href = 'dashboard-admin.html';
-    } else {
-        window.location.href = 'dashboard-client.html';
-    }
-}
-
-function checkRememberedLogin() {
-    const remembered = localStorage.getItem('rememberedLogin');
-    if (!remembered) return;
+    const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...options.headers
+    };
     
     try {
-        const loginData = JSON.parse(remembered);
-        const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers
+        });
         
-        if (loginData.timestamp > oneWeekAgo) {
-            // Auto-fill username
-            const usernameInput = document.getElementById('username');
-            const roleSelect = document.getElementById('role');
-            
-            if (usernameInput) usernameInput.value = loginData.username;
-            if (roleSelect) roleSelect.value = loginData.role;
-        } else {
-            // Clear expired remember
-            localStorage.removeItem('rememberedLogin');
+        if (response.status === 401) {
+            // Token expired
+            localStorage.clear();
+            window.location.href = 'login.html?expired=true';
+            throw new Error('Session expired');
         }
-    } catch (e) {
-        console.error('Error parsing remembered login:', e);
+        
+        return response;
+    } catch (error) {
+        console.error('API fetch error:', error);
+        throw error;
     }
 }
 
-// Registration function (for register.html)
-function registerUser(userData) {
-    // In a real system, this would make an API call
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+// ========== UI HELPERS ==========
+
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existing = document.querySelectorAll('.global-notification');
+    existing.forEach(n => n.remove());
     
-    // Check if user already exists
-    if (users.some(u => u.email === userData.email)) {
-        return { success: false, message: 'Email already registered' };
-    }
+    const notification = document.createElement('div');
+    notification.className = `global-notification notification-${type}`;
+    notification.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        ">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()" style="
+                background: none;
+                border: none;
+                color: white;
+                cursor: pointer;
+                margin-left: 1rem;
+            ">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
     
-    // Add new user
-    users.push({
-        id: 'user_' + Date.now(),
-        ...userData,
-        createdAt: new Date().toISOString()
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+function initPasswordToggles() {
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        });
+    });
+}
+
+function initPasswordValidation() {
+    const passwordInput = document.getElementById('password');
+    if (!passwordInput) return;
+    
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        const hints = {
+            length: document.getElementById('hintLength'),
+            uppercase: document.getElementById('hintUppercase'),
+            lowercase: document.getElementById('hintLowercase'),
+            number: document.getElementById('hintNumber')
+        };
+        
+        if (hints.length) {
+            const isValid = password.length >= 8;
+            updateHint(hints.length, isValid);
+        }
+        if (hints.uppercase) {
+            const isValid = /[A-Z]/.test(password);
+            updateHint(hints.uppercase, isValid);
+        }
+        if (hints.lowercase) {
+            const isValid = /[a-z]/.test(password);
+            updateHint(hints.lowercase, isValid);
+        }
+        if (hints.number) {
+            const isValid = /[0-9]/.test(password);
+            updateHint(hints.number, isValid);
+        }
     });
     
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
-    
-    // Auto-login after registration
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userRole', 'client');
-    localStorage.setItem('username', userData.email);
-    
-    return { success: true, message: 'Registration successful' };
+    // Confirm password matching
+    const confirmInput = document.getElementById('confirmPassword');
+    if (confirmInput) {
+        confirmInput.addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const hint = document.getElementById('hintMatch');
+            if (hint) {
+                const isValid = password === this.value && password.length > 0;
+                updateHint(hint, isValid);
+            }
+        });
+    }
 }
 
-// Logout function
-function logout() {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('username');
-    window.location.href = 'index.html';
+function updateHint(element, isValid) {
+    if (!element) return;
+    
+    const icon = element.querySelector('i');
+    if (icon) {
+        icon.className = isValid ? 'fas fa-check' : 'fas fa-times';
+        icon.style.color = isValid ? '#10b981' : '#ef4444';
+    }
+    element.style.color = isValid ? '#10b981' : '#6b7280';
 }
 
-// Export functions for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        authenticateUser,
-        registerUser,
-        logout,
-        isLoggedIn
-    };
+function validateRegistrationForm() {
+    const firstName = document.getElementById('firstName')?.value.trim();
+    const lastName = document.getElementById('lastName')?.value.trim();
+    const email = document.getElementById('email')?.value.trim();
+    const password = document.getElementById('password')?.value;
+    const confirmPassword = document.getElementById('confirmPassword')?.value;
+    const terms = document.getElementById('terms')?.checked;
+    
+    // Basic validation
+    const errors = [];
+    
+    if (!firstName || !lastName) {
+        errors.push('Please enter your full name');
+    }
+    
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push('Please enter a valid email address');
+    }
+    
+    if (!password || password.length < 8) {
+        errors.push('Password must be at least 8 characters');
+    }
+    
+    if (password !== confirmPassword) {
+        errors.push('Passwords do not match');
+    }
+    
+    if (!terms) {
+        errors.push('Please accept the Terms of Service');
+    }
+    
+    // Password strength
+    if (password) {
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        
+        if (!hasUppercase || !hasLowercase || !hasNumber) {
+            errors.push('Password must include uppercase, lowercase letters, and numbers');
+        }
+    }
+    
+    if (errors.length > 0) {
+        showNotification(errors[0], 'error');
+        return false;
+    }
+    
+    return true;
 }
+
+// Make functions available globally
+window.showNotification = showNotification;
+window.logout = logout;
+window.apiFetch = apiFetch;
